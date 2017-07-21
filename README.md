@@ -9,5 +9,8 @@ This script processes train tickets bought on [intercity.pl](http://www.intercit
 
 ![project's triggers config dialog](https://raw.githubusercontent.com/lopekpl/pkp-tickets-to-gcalendar/master/project_triggers_config.png)
 
- 4. Go to *Resources > Advanced Google services...* and enable Drive and Calendar APIs
+ 4. Go to *Resources > Advanced Google services...* and enable Drive and Calendar APIs:
+ 
+![advanced google services dialog](https://raw.githubusercontent.com/lopekpl/pkp-tickets-to-gcalendar/master/advanced_google_services.png)
+ 
  5. Click *Run > exportTicketsToCalendar* to verify that the script works
