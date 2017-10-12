@@ -81,14 +81,27 @@ function exportTicketsToCalendar() {
     };
 
     var year = dateReceived.getFullYear();
-    var startDate = new Date(monthNames[startMonth] + ' ' + startDay + ', ' + year + ' ' + startTime + ':00 +0200');
-    var endDate   = new Date(monthNames[endMonth] + ' ' + endDay + ', ' + year + ' ' + endTime   + ':00 +0200');
+    var timeZoneString = ':00 +0200';
+
+    var parsedBackStartTime = Utilities.formatDate(
+      new Date(monthNames[startMonth] + ' ' + startDay + ', ' + year + ' ' + startTime + timeZoneString),
+      'Europe/Warsaw',
+      'HH:mm');
+
+    if (parsedBackStartTime != startTime) {
+      Logger.log('Changing time zone becasue %s != %s.', startTime, parsedBackStartTime);
+      timeZoneString = ':00 +0100';
+    }
+    Logger.log('timezone string: ' + timeZoneString);
+
+    var startDate = new Date(monthNames[startMonth] + ' ' + startDay + ', ' + year + ' ' + startTime + timeZoneString);
+    var endDate   = new Date(monthNames[endMonth] + ' ' + endDay + ', ' + year + ' ' + endTime   + timeZoneString);
 
     if (startDate.getTime() < dateReceived.getTime()) {
-      var startDate = new Date(monthNames[startMonth] + ' ' + startDay + ', ' + (year + 1) + ' ' + startTime + ':00 +0200');
+      var startDate = new Date(monthNames[startMonth] + ' ' + startDay + ', ' + (year + 1) + ' ' + startTime + timeZoneString);
     }
     if (endDate.getTime() < startDate.getTime()) {
-      var endDate   = new Date(monthNames[endMonth] + ' ' + endDay + ', ' + (year + 1) + ' ' + endTime   + ':00 +0200');
+      var endDate   = new Date(monthNames[endMonth] + ' ' + endDay + ', ' + (year + 1) + ' ' + endTime   + timeZoneString);
     }
 
     Logger.log('start date: ' + startDate);
