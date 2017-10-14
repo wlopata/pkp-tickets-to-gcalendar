@@ -3,7 +3,7 @@
 This script processes train tickets bought on [intercity.pl](http://www.intercity.pl) that are sent to your Gmail inbox as PDF attachments. Script saves the tickets in Google Drive and creates a Google Calendar event for your trip with a link to the ticket for easy access.
 
 ## Installation
- 1. Log in to your Google account and go to https://script.google.com/
+ 1. Log in to your Google account, go to https://script.google.com/, click *+ Create new*
  2. Copy and paste [the script](https://github.com/lopekpl/pkp-tickets-to-gcalendar/blob/master/Code.gs) into the editor, and save it
  3. Go to *Resources > Advanced Google services...* and enable Drive and Calendar APIs:
  
