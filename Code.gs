@@ -39,6 +39,59 @@ function pdfToText(pdfFile, options) {
   };
 }
 
+function parseDate(rawStr) {
+  var dateRegExp = new RegExp("^(?:\\s*)([0-9][0-9]\\.[0-1][0-9]).*$", "g");
+  if (rawStr.match(dateRegExp)) {
+    return dateRegExp.exec(rawStr)[1];
+  }
+  return null;
+}
+
+function parseTime(rawStr) {
+  var timeRegExp = new RegExp("^(?:\\s*)([0-2][0-9]:[0-5][0-9]).*$", "g");
+  if (rawStr.match(timeRegExp)) {
+    return timeRegExp.exec(rawStr)[1];
+  }
+  return null;
+}
+
+function parseStation(rawStr) {
+  var stations = ['Kraków', 'Warszawa', 'Poznań', 'Gdańsk', 'Łódź', 'Zakopane', 'Giżycko'];
+  for (var i = 0; i < stations.length; i++) {
+    if (rawStr.indexOf(stations[i]) !== -1) return stations[i];
+  }
+  return null;
+}
+
+function parsePrice(rawStr) {
+  var regExp = new RegExp("^[^0-9]*([0-9]?[0-9][0-9],[0-9][0-9]).*$", "g");
+  if (rawStr.match(regExp)) {
+    return regExp.exec(rawStr)[1];
+  }
+  return null;
+}
+
+function test() {
+  Logger.log(parseDate("24.12") === "24.12");
+  Logger.log(parseDate("24.21") === null);
+  Logger.log(parseDate("  11.11 * ") === "11.11");
+  Logger.log(parseDate("foo bar") === null);
+  Logger.log(parseDate("1.22") === null);
+  
+  Logger.log(parseTime("23:12") === "23:12");
+  Logger.log(parseTime("24:68") === null);
+  Logger.log(parseTime("  11:11 * ") === "11:11");
+  Logger.log(parseTime("foo bar") === null);
+  Logger.log(parseTime("1:22") === null);
+  Logger.log(parseTime("10.20") === null);
+  Logger.log(parseTime("10:20") === "10:20");
+  
+  Logger.log(parsePrice("29,99") === "29,99");
+  Logger.log(parsePrice("128,00") === "128,00");
+  Logger.log(parsePrice("PLN: 29,99") === "29,99");
+  Logger.log(parsePrice("128,00 zł") === "128,00");
+}
+
 function exportTicketsToCalendar() {
   var label = GmailApp.createLabel("Train ticket in calendar");
   var threads = GmailApp.search("from:(bilet.eic@intercity.pl) has:attachment newer_than:40d -label:train-ticket-in-calendar");
@@ -50,25 +103,48 @@ function exportTicketsToCalendar() {
     var ticketParsed = pdfToText(ticketPdf, { keepTextfile: false, textResult: true });
     var ticketTxt = ticketParsed.text.split('\n');
     var link = ticketParsed.link;
+    Logger.log(ticketTxt);
     
-    var startMonthDay = ticketTxt[4].split(' ')[0].split('.');
-    var startTime = ticketTxt[5].split(' ')[0];
+    var j = 0;
+    while (j < ticketTxt.length && parseDate(ticketTxt[j]) === null) j++;
+    if (j === ticketTxt.length) throw new Error("Failed to parse.");
+    var startMonthDay = parseDate(ticketTxt[j++]).split('.');
+    
+    while (j < ticketTxt.length && parseTime(ticketTxt[j]) === null) j++;
+    if (j === ticketTxt.length) throw new Error("Failed to parse.");
+    var startTime = parseTime(ticketTxt[j++]);
+    
     var startMonth = startMonthDay[1];
     var startDay= startMonthDay[0];
     Logger.log('Departure time: ' + startTime + ', month: ' + startMonth + ', day: ' + startDay);
-    Logger.log('Expected format: 14:30, month: 12, day: 24');
+    Logger.log('Expected format: HH:MM, month: MM, day: DD');
     
-    var endMonthDay = ticketTxt[8].split(' ')[0].split('.');
-    var endTime = ticketTxt[9].split(' ')[0];
+    while (j < ticketTxt.length && parseDate(ticketTxt[j]) === null) j++;
+    if (j === ticketTxt.length) throw new Error("Failed to parse.");
+    var endMonthDay = parseDate(ticketTxt[j++]).split('.');
+    
+    while (j < ticketTxt.length && parseTime(ticketTxt[j]) === null) j++;
+    if (j === ticketTxt.length) throw new Error("Failed to parse.");
+    var endTime = parseTime(ticketTxt[j++]);
+    
     var endMonth = endMonthDay[1];
     var endDay= endMonthDay[0];
     Logger.log('Arrival time: ' + endTime + ', month: ' + endMonth + ', day: ' + endDay);
-    
-    var from = ticketTxt[6].split(' ')[0];
-    var to = ticketTxt[7].split(' ')[0];
+
+    j = 0;
+    while (j < ticketTxt.length && parseStation(ticketTxt[j]) === null) j++;
+    if (j === ticketTxt.length) throw new Error("Failed to parse.");
+    var from = parseStation(ticketTxt[j++]);
+
+    while (j < ticketTxt.length && parseStation(ticketTxt[j]) === null) j++;
+    if (j === ticketTxt.length) throw new Error("Failed to parse.");
+    var to = parseStation(ticketTxt[j++]);
     Logger.log('From ' + from + ' to ' + to);
     
-    var price = ticketTxt[11].split(': ')[1];
+    var price = '';
+    while (j < ticketTxt.length && parsePrice(ticketTxt[j]) === null) j++;
+    if (j === ticketTxt.length) Logger.log("Failed to find price.");
+    else price = parsePrice(ticketTxt[j]);
     Logger.log('Price: ' + price);
     
     var monthNames = {
