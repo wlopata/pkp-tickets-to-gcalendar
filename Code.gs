@@ -56,7 +56,7 @@ function parseTime(rawStr) {
 }
 
 function parseStation(rawStr) {
-  var stations = ['Kraków', 'Warszawa', 'Poznań', 'Gdańsk', 'Łódź', 'Zakopane', 'Giżycko'];
+  var stations = ['Kraków', 'Warszawa', 'Poznań', 'Gdańsk', 'Gdynia', 'Łódź', 'Zakopane', 'Giżycko'];
   for (var i = 0; i < stations.length; i++) {
     if (rawStr.indexOf(stations[i]) !== -1) return stations[i];
   }
@@ -94,10 +94,11 @@ function test() {
 
 function exportTicketsToCalendar() {
   var label = GmailApp.createLabel("Train ticket in calendar");
-  var threads = GmailApp.search("from:(bilet.eic@intercity.pl) has:attachment newer_than:40d -label:train-ticket-in-calendar");
+  var threads = GmailApp.search("from:(bilet.eic@intercity.pl) subject:\"zakup biletu\" has:attachment newer_than:40d -label:train-ticket-in-calendar");
   
   Logger.log("Found " + threads.length + " unprocessed emails with tickets.");
   for (var i = 0; i < threads.length; i++) {
+    Logger.log("Processing mail with subject: " + threads[i].getMessages()[0].getSubject());
     var ticketPdf = threads[i].getMessages()[0].getAttachments()[0].getAs(MimeType.PDF);
     var dateReceived = threads[i].getMessages()[0].getDate();
     var ticketParsed = pdfToText(ticketPdf, { keepTextfile: false, textResult: true });
