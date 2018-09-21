@@ -190,7 +190,11 @@ function exportTicketsToCalendar() {
     Logger.log('start date: ' + startDate);
     Logger.log('end date: ' + endDate);
     var event = CalendarApp.createEvent('Train ' + from + ' -> ' + to + ', ' + price, startDate, endDate);
-    event.setColor(CalendarApp.EventColor.RED);
+    if (from == 'Warszawa') {
+      event.setColor(CalendarApp.EventColor.GREEN);
+    } else {
+      event.setColor(CalendarApp.EventColor.RED);
+    }
     event.setDescription(link);
     threads[i].addLabel(label);
   }
