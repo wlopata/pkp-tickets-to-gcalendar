@@ -189,8 +189,15 @@ function exportTicketsToCalendar() {
     
     Logger.log('start date: ' + startDate);
     Logger.log('end date: ' + endDate);
+    var dayOfWeek =  Utilities.formatDate(startDate, 'Europe/Warsaw', 'EEEE');
     var event = CalendarApp.createEvent('Train ' + from + ' -> ' + to + ', ' + price, startDate, endDate);
-    if (from == 'Warszawa') {
+    if (dayOfWeek == 'Monday' && from == 'Kraków') {
+      event.setColor(CalendarApp.EventColor.GREEN);
+    } else if (dayOfWeek == 'Tuesday' && from == 'Kraków') {
+      event.setColor(CalendarApp.EventColor.GREEN);
+    } else if (dayOfWeek == 'Thursday' && from == 'Warszawa') {
+      event.setColor(CalendarApp.EventColor.GREEN);
+    } else if (dayOfWeek == 'Friday' && from == 'Warszawa') {
       event.setColor(CalendarApp.EventColor.GREEN);
     } else {
       event.setColor(CalendarApp.EventColor.RED);
