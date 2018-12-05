@@ -16,7 +16,7 @@ function pdfToText(pdfFile, options) {
     title: pdfName,
     mimeType: MimeType.PDF,
   };
-  var file = Drive.Files.insert(resource, pdfFile);
+  var file = Drive.Files.insert(resource, pdfFile, {ocr: true, ocrLanguage: "pl"});
   
   // Save PDF as GDOC
   resource.title = pdfName.replace(/pdf$/, 'gdoc');
@@ -40,7 +40,7 @@ function pdfToText(pdfFile, options) {
 }
 
 function parseDate(rawStr) {
-  var dateRegExp = new RegExp("^(?:\\s*)([0-9][0-9]\\.[0-1][0-9]).*$", "g");
+  var dateRegExp = new RegExp("^(?:\\s*|.*\\s)([0-3][0-9]\\.[0-1][0-9])(?:\\s.*|\\s*)$", "g");
   if (rawStr.match(dateRegExp)) {
     return dateRegExp.exec(rawStr)[1];
   }
@@ -74,9 +74,16 @@ function parsePrice(rawStr) {
 function test() {
   Logger.log(parseDate("24.12") === "24.12");
   Logger.log(parseDate("24.21") === null);
-  Logger.log(parseDate("  11.11 * ") === "11.11");
-  Logger.log(parseDate("foo bar") === null);
+  Logger.log(parseDate("41.22") === null);
   Logger.log(parseDate("1.22") === null);
+  Logger.log(parseDate(" 1.22") === null);
+  Logger.log(parseDate("   11.11  *") === "11.11");
+  Logger.log(parseDate("   11.11 * ") === "11.11");
+  Logger.log(parseDate("   11.11*  ") === null);
+  Logger.log(parseDate("  *11.11   ") === null);
+  Logger.log(parseDate(" * 11.11   ") === "11.11");
+  Logger.log(parseDate("*  11.11   ") === "11.11");
+  Logger.log(parseDate(" KL./CL. 04.01 * ") === "04.01");
   
   Logger.log(parseTime("23:12") === "23:12");
   Logger.log(parseTime("24:68") === null);
