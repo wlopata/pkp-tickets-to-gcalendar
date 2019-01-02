@@ -16,7 +16,7 @@ function pdfToText(pdfFile, options) {
     title: pdfName,
     mimeType: MimeType.PDF,
   };
-  var file = Drive.Files.insert(resource, pdfFile, {ocr: true, ocrLanguage: "pl"});
+  var file = Drive.Files.insert(resource, pdfFile);
   
   // Save PDF as GDOC
   resource.title = pdfName.replace(/pdf$/, 'gdoc');
