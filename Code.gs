@@ -101,7 +101,7 @@ function test() {
 
 function exportTicketsToCalendar() {
   var label = GmailApp.createLabel("Train ticket in calendar");
-  var threads = GmailApp.search("from:(bilet.eic@intercity.pl) subject:\"zakup biletu\" has:attachment newer_than:40d -label:train-ticket-in-calendar");
+  var threads = GmailApp.search("from:(bilet.eic@intercity.pl) subject:\"bilet\" has:attachment newer_than:40d -label:train-ticket-in-calendar");
   
   Logger.log("Found " + threads.length + " unprocessed emails with tickets.");
   for (var i = 0; i < threads.length; i++) {
